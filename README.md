@@ -115,7 +115,7 @@ pipeline {
         }
         stage ("Git checkout") {
             steps {
-                git branch: 'main', url: 'https://github.com/yeshwanthlm/background-remover-python-app.git'
+                git branch: 'dev', url: 'https://github.com/ChamankarS/Bg-Removal-Python-App.git'
             }
         }
         stage("SonarQube Analysis") {
@@ -129,13 +129,13 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-cred'
                 }
             }
         }
         stage('OWASP FS Scan') {
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'Owasp-Check'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
@@ -153,8 +153,8 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker') {
-                        sh "docker tag background-remover-python-app amonkincloud/background-remover-python-app:latest"
-                        sh "docker push amonkincloud/background-remover-python-app:latest"
+                        sh "docker tag background-remover-python-app chamankarsahil/background-remover-python-app:latest"
+                        sh "docker push  chamankarsahil/background-remover-python-app:latest"
                     }
                 }
             }
@@ -162,17 +162,17 @@ pipeline {
         stage('Docker Scout Image') {
             steps {
                 script {
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
-                       sh 'docker-scout quickview amonkincloud/background-remover-python-app:latest'
-                       sh 'docker-scout cves amonkincloud/background-remover-python-app:latest'
-                       sh 'docker-scout recommendations amonkincloud/background-remover-python-app:latest'
+                   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                       sh 'docker-scout quickview chamankarsahil/background-remover-python-app:latest'
+                       sh 'docker-scout cves chamankarsahil/background-remover-python-app:latest'
+                       sh 'docker-scout recommendations chamankarsahil/background-remover-python-app:latest'
                    }
                 }
             }
         }
         stage ("Deploy to Container") {
             steps {
-                sh 'docker run -d --name background-remover-python-app -p 5100:5100 amonkincloud/background-remover-python-app:latest'
+                sh 'docker run -d --name background-remover-python-app -p 5100:5100 chamankarsahil/background-remover-python-app:latest'
             }
         }
     }
