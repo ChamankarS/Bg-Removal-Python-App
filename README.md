@@ -152,7 +152,7 @@ pipeline {
         stage ("Tag & Push to DockerHub") {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker') {
+                    withDockerRegistry(credentialsId: 'docker-cred') {
                         sh "docker tag background-remover-python-app chamankarsahil/background-remover-python-app:latest"
                         sh "docker push  chamankarsahil/background-remover-python-app:latest"
                     }
